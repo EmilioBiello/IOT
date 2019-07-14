@@ -137,6 +137,8 @@ function onUnsubscribe() {
 
 function unsubscribeSuccess(context) {
     logMessage("INFO", "Unsubscribed. [Topic: ", context.invocationContext.topic, "]");
+    $('.info_subscribe_class').remove();
+    indice_sub = 0;
 }
 
 function unsubscribeFailure(context) {
