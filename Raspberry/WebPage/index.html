@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html lang="it">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta http-equiv="x-ua-compatible" content="ie=edge">
+    <title>GreenHouse</title>
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.8.2/css/all.css">
+    <!-- Bootstrap core CSS -->
+    <link href="css/bootstrap.min.css" rel="stylesheet">
+    <!-- Material Design Bootstrap -->
+    <link href="css/mdb.min.css" rel="stylesheet">
+    <!-- Your custom styles (optional) -->
+    <link href="css/style.css" rel="stylesheet">
+
+    <!--CUSTOM-->
+    <!-- MDBootstrap Datatables  -->
+    <link href="css/addons/datatables.min.css" rel="stylesheet">
+</head>
+
+<body>
+
+<!-- Start your project here-->
+<div style="height: 100vh">
+    <div class="container-fluid">
+        <h1 class="display-4 text-center">GreenHouse</h1>
+        <h6 class="text-center">
+            <small class=""><a id="link_grafana" target="_blank">Link Grafana</a>
+            </small>
+        </h6>
+
+        <!-- Connection Panel -->
+        <div class="container-fluid jumbotron col-lg-12" style="padding-bottom: 14px">
+            <div class="row">
+                <div class="col-lg-7">
+                    <form id="connection-information-form">
+                        <div class="row">
+                            <div class="col-lg-5">
+                                <div class="form-group">
+                                    <label for="host">Hostname or Ip Address:</label>
+                                    <input type="text" class="form-control" id="host"
+                                           placeholder="Enter Hostname or IP Address" value="192.168.1.137"
+                                           name="host">
+                                </div>
+                            </div>
+                            <div class="col-lg-2">
+                                <div class="form-group">
+                                    <label for="port">Port:</label>
+                                    <input type="text" class="form-control" id="port"
+                                           placeholder="Enter Port number" value="9001" name="port">
+                                </div>
+                            </div>
+                            <div class="col-lg-5">
+                                <div class="form-group">
+                                    <div class="col-sm-12 justify-content-md-center mx-auto">
+                                        <label class="form-text text-muted text-center"
+                                               id="connectionStatus">Connect or
+                                            Disconnect:</label>
+                                        <div class="row justify-content-md-center">
+                                            <button id="connect" type="button" class="btn btn-primary waves-effect"
+                                                    onclick="startConnect()"><i class='fas fa-check fa-1x mr-2'></i>
+                                                Connect
+                                            </button>
+                                            <span class="col-sm-1"></span>
+                                            <button id="disconnect" type="button"
+                                                    class="btn danger-color waves-effect" onclick="startDisconnect()"><i
+                                                    class="fas fa-times fa-1x mr-2"></i>
+                                                Disconnect
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                <div class="col-lg-5">
+                    <div id="row_picture" class="row" style="margin-top: -50px;">
+                        <div id="col_picture" class="col-sm-4 " style="margin-top: 64px; padding-top: 22px;">
+                            <div class="justify-content-md-center">
+                                <button id="take_picture" type="button" class="btn heavy-rain-gradient waves-effect"
+                                        onclick="getImage()"><i class='far fa-image fa-1x mr-2'></i>Picture
+                                </button>
+                            </div>
+                        </div>
+                        <div class="col-sm-8">
+                            <div id="show_images">
+                                <img id="image_pianta" src="/img/pianta/pianta_1.jpg"
+                                     class="img-fluid img-thumbnail rounded mx-auto d-block" style="width: 80%;"
+                                     alt="pianta_1">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- End of Connection panel -->
+
+        <!-- Subscription Panel -->
+        <div class="container-fluid row jumbotron jumbotron-fluid"
+             style="padding-top: 8px; margin-left: 0px; margin-right: 0px;">
+            <div class="col-sm-12  mx-auto">
+                <h6 class="display-4 text-center">
+                    <small>Subscribe</small>
+                </h6>
+            </div>
+            <div class="col-sm-4 mx-auto">
+                <div class="col-sm-12 mx-auto">
+                    <form id="subscription-information-form">
+                        <div class="form-group">
+                            <label for="topic">Topic:</label>
+                            <input type="text" class="form-control" id="topic" placeholder="Enter the Topic"
+                                   value="room/#" name="topic">
+                        </div>
+                        <div class="row justify-content-md-center">
+                            <button id="subscribe" type="button" class="btn blue-gradient waves-effect"
+                                    onclick="onSubscribe()"><i class='fas fa-check fa-1x mr-2'></i>
+                                Subscribe
+                            </button>
+                            <span class="col-sm-1"></span>
+                            <button id="unsubscribe" type="button" class="btn peach-gradient waves-effect"
+                                    onclick="onUnsubscribe()"><i class='fas fa-times fa-1x mr-2'></i>
+                                Unsubscribe
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+            <div class="col-sm-8 mx-auto">
+                <div class="row">
+                    <div class="col-sm-1">
+                        <i class="fas fa-angle-double-right prefix"></i>
+                    </div>
+                    <small id="info_time_message" class="col-sm-10 form-text text-muted"></small>
+                </div>
+                <div class="row col-sm-12 table-responsive text-nowrap">
+                    <table id="table_info_subscribe" class="table table-sm table-striped" cellspacing="0"
+                           width="100%">
+                        <thead>
+                        <tr>
+                            <th>#</th>
+                            <th class="th-sm"><i class="fas fa-leaf mr-2 blue-text"
+                                                 aria-hidden="true"></i>Timestamp
+                            </th>
+                            <th class="th-sm"><i class="fas fa-leaf mr-2 green-text"
+                                                 aria-hidden="true"></i>Topic
+                            </th>
+                            <th class="th-sm"><i class="fas fa-leaf mr-2 deep-orange-text"
+                                                 aria-hidden="true"></i>Value
+                            </th>
+                        </tr>
+                        </thead>
+                        <tbody>
+
+                        </tbody>
+                    </table>
+                </div>
+                <div class="row">
+                    <div class="col-sm-12 align-self-center">
+                        <small id="info_topic_sub" class="form-text text-muted text-center">Info Topic</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- End of Subscription panel -->
+
+        <!-- Publish panel -->
+        <div class="container-fluid row jumbotron jumbotron-fluid"
+             style="padding-top: 8px; margin-left: 0px; margin-right: 0px;">
+            <div class="col-sm-12  mx-auto">
+                <h6 class="display-4 text-center">
+                    <small>Publish</small>
+                </h6>
+            </div>
+            <div class="col-sm-4 mx-auto">
+                <div class="col-sm-12 mx-auto">
+                    <form id="publish-information-form">
+                        <div class="form-group">
+                            <label for="topic_pub">Topic:</label>
+                            <select id="topic_pub" class="browser-default custom-select">
+                                <option selected>Select the topic</option>
+                                <option value="1">Elettrovalvola</option>
+                                <option value="2">Igrometro</option>
+                                <option value="3">Info</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="msg_pub">Message:</label>
+                            <input type="text" class="form-control" id="msg_pub" placeholder="Enter the message"
+                                   name="msg_pub">
+                        </div>
+                        <div class="row justify-content-md-center">
+                            <button id="send_btn" type="button" class="btn tempting-azure-gradient waves-effect"
+                                    onclick="onPublish()"><i class="fas fa-paper-plane black-text fa-1x mr-2"></i>Send
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+            <div class="col-sm-8 mx-auto">
+                <div class="row">
+                    <div class="col-sm-1">
+                        <i class="fas fa-angle-double-right prefix"></i>
+                    </div>
+                    <small id="info_time_publish" class="col-sm-10 form-text text-muted"></small>
+                </div>
+                <div class="row col-sm-12 table-responsive text-nowrap">
+                    <table id="table_info_publish" class="table table-sm table-striped" cellspacing="0"
+                           width="100%">
+                        <thead>
+                        <tr>
+                            <th>#</th>
+                            <th class="th-sm"><i class="fas fa-leaf mr-2 blue-text"
+                                                 aria-hidden="true"></i>Timestamp
+                            </th>
+                            <th class="th-sm"><i class="fas fa-leaf mr-2 green-text"
+                                                 aria-hidden="true"></i>Topic
+                            </th>
+                            <th class="th-sm"><i class="fas fa-leaf mr-2 deep-orange-text"
+                                                 aria-hidden="true"></i>Value
+                            </th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+        <!---End of Publish panel-->
+        <div class="row col-lg-12">
+            <div class="panel-body fixed-height-panel-pre" id="consoleCollapse">
+                <pre id="consolePre" class="pre-scrollable"></pre>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- Start your project here-->
+
+<!-- SCRIPTS -->
+<!-- JQuery -->
+<script type="text/javascript" src="js/jquery-3.4.1.min.js"></script>
+<!-- Bootstrap tooltips -->
+<script type="text/javascript" src="js/popper.min.js"></script>
+<!-- Bootstrap core JavaScript -->
+<script type="text/javascript" src="js/bootstrap.min.js"></script>
+<!-- MDB core JavaScript -->
+<script type="text/javascript" src="js/mdb.min.js"></script>
+
+<!-- Javascript per gestire la pagina-->
+<!-- MDBootstrap Datatables  -->
+<script type="text/javascript" src="js/addons/datatables.min.js"></script>
+<script src="demo.js" type="text/javascript"></script>
+<script src="js/page.js" type="text/javascript"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/paho-mqtt/1.0.1/mqttws31.js" type="text/javascript"></script>
+
+<script>
+    $(document).ready(function () {
+        start_page();
+    });
+
+    $(document).ready(function () {
+        $('#table_info_subscribe').DataTable({
+            "scrollY": "300px",
+            "paging": false,
+            "ordering": false,
+            "searching": false,
+            "scrollCollapse": true,
+            "bInfo": false
+        });
+        $('#table_info_publish').DataTable({
+            "scrollY": "300px",
+            "paging": false,
+            "ordering": false,
+            "searching": false,
+            "scrollCollapse": true,
+            "bInfo": false
+        });
+
+        $('.dataTables_length').addClass('bs-select');
+    });
+
+    $(window).resize(function () {
+        if ($(window).width() <= 768) {
+            $('#row_picture').css({'margin-top': '0px'});
+            $('#col_picture').css({'margin-top': '0px', 'padding-top': '0px'});
+        } else if ($(window).width() > 768) {
+            $('#row_picture').css({'margin-top': '0px'});
+            $('#col_picture').css({'margin-top': '0px', 'padding-top': '0px'});
+        }
+    });
+</script>
+</body>
+
+</html>
