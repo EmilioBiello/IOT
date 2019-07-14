@@ -87,6 +87,7 @@ def save_topic_get_information(pianta, subtopic, value):
     if piante_measurement[pianta]['temperature'] != 0.0 and piante_measurement[pianta]['humidity'] != 0.0 and \
             piante_measurement[pianta]['lumen'] != 0.0 and piante_measurement[pianta]['soil'] != 0.0:
         create_json(pianta)
+        request_water(pianta)
         reset_variable(pianta)
 
 
@@ -139,6 +140,13 @@ def reset_variable(pianta):
     piante_measurement[pianta]['humidity'] = 0.0
     piante_measurement[pianta]['lumen'] = 0.0
     piante_measurement[pianta]['soil'] = 0.0
+
+
+def request_water(pianta):
+    if float(piante_measurement[pianta]['soil']) < 40:
+        print("MINUS")
+    else:
+        print("PLUS")
 
 
 @app.route('/')
