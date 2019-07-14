@@ -42,12 +42,8 @@ def on_message(client, userdata, msg):
     topic = str(msg.topic)
     value = str(msg.payload.decode("utf-8"))
 
-    if isinstance(value, float):
-        print("{} \t- Message: {} \t- Topic: {}".format(datetime.now().time(),
-                                                        float(value), topic))
-    elif isinstance(value, str):
-        print("{} \t- Message: {} \t- Topic: {}".format(datetime.now().time(),
-                                                        value, topic))
+    print("{} \t- Message: {} \t- Topic: {}".format(datetime.now().time(),
+                                                    value, topic))
     choiche_topic(topic, value)
 
 
@@ -87,8 +83,9 @@ def save_topic_get_information(pianta, subtopic, value):
     if piante_measurement[pianta]['temperature'] != 0.0 and piante_measurement[pianta]['humidity'] != 0.0 and \
             piante_measurement[pianta]['lumen'] != 0.0 and piante_measurement[pianta]['soil'] != 0.0:
         create_json(pianta)
-        request_water(pianta)
+        soil = float(piante_measurement[pianta]['soil'])
         reset_variable(pianta)
+        request_water(pianta, soil)
 
 
 def save_topic_elettrovalvola(pianta, value):
@@ -142,11 +139,17 @@ def reset_variable(pianta):
     piante_measurement[pianta]['soil'] = 0.0
 
 
-def request_water(pianta):
-    if float(piante_measurement[pianta]['soil']) < 40:
-        print("MINUS")
-    else:
-        print("PLUS")
+def request_water(pianta, soil):
+    print("SOIL : {}".format(soil))
+    if soil < 40:
+        topic = "room/{}/input/auto/elettrovalvola".format(pianta)
+        client.publish(topic, "on")
+        time.sleep(5)
+        client.publish(topic, "off")
+        time.sleep(2)
+        topic = "room/{}/input/igrometro".format(pianta)
+        client.publish(topic, "soil moisture after watering!")
+
 
 
 @app.route('/')

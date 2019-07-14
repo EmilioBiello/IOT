@@ -38,6 +38,7 @@ const char* mqtt_server = "192.168.1.137";
 const char* mqtt_topic_sub = "room/pianta_1/input/#";
 const char* mqtt_topic_pub = "room/pianta_1/";
 const char* mqtt_topic_sub_elettrovalvola = "room/pianta_1/input/elettrovalvola";
+const char* mqtt_topic_sub_elettrovalvola_auto = "room/pianta_1/input/auto/elettrovalvola";
 const char* mqtt_topic_sub_igrometro = "room/pianta_1/input/igrometro";
 const char* mqtt_topic_sub_info = "room/pianta_1/input/info";
 const char* mqtt_username = "emilio";
@@ -92,7 +93,7 @@ void callback(char* topic, byte* message, unsigned int length) {
   // If a message is received on the topic esp32/output, you check if the message is either "on" or "off".
   // Changes the output state according to the message
 
-  if (String(topic) == mqtt_topic_sub_elettrovalvola) {
+  if (String(topic) == mqtt_topic_sub_elettrovalvola || String(topic) == mqtt_topic_sub_elettrovalvola_auto) {
     Serial.println("ELETTROVALVOLA");
     use_elettrovalvola(messageTemp);
   } else if (String(topic) == mqtt_topic_sub_igrometro) {
@@ -269,9 +270,9 @@ void info_point() {
 
   publish_MQTT("info", "blink");
 }
-char* mqtt_topic="";
+char* mqtt_topic = "";
 void publish_MQTT(char* mqtt_subtopic, char* value) {
-  
+
   mqtt_topic = (char *) malloc(1 + strlen(mqtt_topic_pub) + strlen(mqtt_subtopic) );
   strcpy(mqtt_topic, mqtt_topic_pub);
   strcat(mqtt_topic, mqtt_subtopic);
