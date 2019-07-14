@@ -48,9 +48,9 @@ def on_message(client, userdata, msg):
 
 
 def choiche_topic(topic, value):
-    subtopic = topic.split('/')
-    pianta = subtopic[1]
-    subtopic = subtopic[2]
+    topic_split = topic.split('/')
+    pianta = topic_split[1]
+    subtopic = topic_split[2]
 
     if pianta not in piante_measurement:
         piante_measurement[pianta] = {}
@@ -59,6 +59,8 @@ def choiche_topic(topic, value):
         save_topic_get_information(pianta, subtopic, float(value))
     elif subtopic == 'elettrovalvola':
         save_topic_elettrovalvola(pianta, value)
+    elif subtopic == 'out' and topic_split[3] == 'igrometro':
+        save_topic_after_watering(pianta, value)
 
 
 def save_topic_get_information(pianta, subtopic, value):
@@ -109,7 +111,26 @@ def save_topic_elettrovalvola(pianta, value):
         }
     ]
     if client_inluxdb.write_points(json_body):
-        print("{} \t\tInsert correct in Influxdb!".format(datetime.now().time()))
+        print("{} \t\tInsert correct in Influxdb! WATER".format(
+            datetime.now().time()))
+
+
+def save_topic_after_watering(pianta, value):
+    pianta = pianta + "_acqua"
+    json_body = [
+        {
+            "measurement": pianta,
+            "tags": {
+                "user": "Emilio"
+            },
+            "fields": {
+                "soil": float(value)
+            }
+        }
+    ]
+    if client_inluxdb.write_points(json_body):
+        print("{} \t\tInsert correct in Influxdb! IGRO after watering".format(
+            datetime.now().time()))
 
 
 def create_json(pianta):
@@ -140,16 +161,11 @@ def reset_variable(pianta):
 
 
 def request_water(pianta, soil):
-    print("SOIL : {}".format(soil))
     if soil < 40.0:
         topic = "room/{}/input/auto/elettrovalvola".format(pianta)
         client.publish(topic, "on")
         time.sleep(5)
         client.publish(topic, "off")
-        time.sleep(2)
-        topic = "room/{}/input/igrometro".format(pianta)
-        client.publish(topic, "soil moisture after watering!")
-
 
 
 @app.route('/')

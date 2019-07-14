@@ -39,6 +39,7 @@ const char* mqtt_topic_sub = "room/pianta_1/input/#";
 const char* mqtt_topic_pub = "room/pianta_1/";
 const char* mqtt_topic_sub_elettrovalvola = "room/pianta_1/input/elettrovalvola";
 const char* mqtt_topic_sub_elettrovalvola_auto = "room/pianta_1/input/auto/elettrovalvola";
+const char* mqtt_topic_sub_elettrovalvola_manual = "room/pianta_1/input/manual/elettrovalvola";
 const char* mqtt_topic_sub_igrometro = "room/pianta_1/input/igrometro";
 const char* mqtt_topic_sub_info = "room/pianta_1/input/info";
 const char* mqtt_username = "emilio";
@@ -93,9 +94,14 @@ void callback(char* topic, byte* message, unsigned int length) {
   // If a message is received on the topic esp32/output, you check if the message is either "on" or "off".
   // Changes the output state according to the message
 
-  if (String(topic) == mqtt_topic_sub_elettrovalvola || String(topic) == mqtt_topic_sub_elettrovalvola_auto) {
+  if (String(topic) == mqtt_topic_sub_elettrovalvola) {
     Serial.println("ELETTROVALVOLA");
     use_elettrovalvola(messageTemp);
+  } else if (String(topic) == mqtt_topic_sub_elettrovalvola_auto || String(topic) == mqtt_topic_sub_elettrovalvola_manual) {
+    use_elettrovalvola(messageTemp);
+    if (messageTemp == "off") {
+      igro_after_watering();
+    }
   } else if (String(topic) == mqtt_topic_sub_igrometro) {
     Serial.println("IGROMETRO");
     use_igrometro();
@@ -240,6 +246,22 @@ void use_igrometro() {
   Serial.print(" - ");
   Serial.print(umdtrr);
   Serial.println(" %");
+}
+
+void igro_after_watering() {
+  digitalWrite(PIN_TRANSISTOR_IGROMETRO, HIGH);
+  delay(500);
+
+  igro = analogRead(DATA_IGROMETRO);
+  int umdtrr = map(igro, 700, 4095, 100, 0); // converto il valore analogico in percentuale
+
+  delay(500);
+  digitalWrite(PIN_TRANSISTOR_IGROMETRO, LOW);
+
+  static char igroTemp[5];
+  sprintf(igroTemp, "%04d", umdtrr);
+
+  publish_MQTT("out/igrometro", igroTemp);
 }
 
 void use_elettrovalvola(String mex) {

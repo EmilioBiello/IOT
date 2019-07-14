@@ -259,7 +259,7 @@ function clear_table() {
 function switch_topic(topic) {
     switch (topic) {
         case "1":
-            topic = "room/pianta_1/input/elettrovalvola";
+            topic = "room/pianta_1/input/manual/elettrovalvola";
             break;
         case  "2":
             topic = "room/pianta_1/input/igrometro";
