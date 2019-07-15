@@ -164,7 +164,7 @@ def request_water(pianta, soil):
     if soil < 40.0:
         topic = "room/{}/input/auto/elettrovalvola".format(pianta)
         client.publish(topic, "on")
-        time.sleep(5)
+        time.sleep(10)
         client.publish(topic, "off")
 
 
