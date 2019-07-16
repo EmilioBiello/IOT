@@ -71,19 +71,19 @@ def save_topic_get_information(pianta, subtopic, value):
         piante_measurement[pianta]['start_time'] = now
     elif subtopic == "humidity":
         duration = (now - piante_measurement[pianta]['start_time'])
-        if duration < 2.0 and piante_measurement[pianta]['temperature'] != 0.0:
+        if duration < 2.0 and piante_measurement[pianta]['temperature'] is not None:
             piante_measurement[pianta]['humidity'] = value
     elif subtopic == "lumen":
         duration = (now - piante_measurement[pianta]['start_time'])
-        if duration < 2.0 and piante_measurement[pianta]['temperature'] != 0.0:
+        if duration < 2.0 and piante_measurement[pianta]['temperature'] is not None:
             piante_measurement[pianta]['lumen'] = value
     elif subtopic == "igrometro":
         duration = (now - piante_measurement[pianta]['start_time'])
-        if duration < 2.0 and piante_measurement[pianta]['temperature'] != 0.0:
+        if duration < 2.0 and piante_measurement[pianta]['temperature'] is not None:
             piante_measurement[pianta]['soil'] = value
 
-    if piante_measurement[pianta]['temperature'] != 0.0 and piante_measurement[pianta]['humidity'] != 0.0 and \
-            piante_measurement[pianta]['lumen'] != 0.0 and piante_measurement[pianta]['soil'] != 0.0:
+    if piante_measurement[pianta]['temperature'] is not None and piante_measurement[pianta]['humidity'] is not None and \
+            piante_measurement[pianta]['lumen'] is not None and piante_measurement[pianta]['soil'] is not None:
         create_json(pianta)
         soil = float(piante_measurement[pianta]['soil'])
         reset_variable(pianta)
@@ -154,10 +154,10 @@ def create_json(pianta):
 
 
 def reset_variable(pianta):
-    piante_measurement[pianta]['temperature'] = 0.0
-    piante_measurement[pianta]['humidity'] = 0.0
-    piante_measurement[pianta]['lumen'] = 0.0
-    piante_measurement[pianta]['soil'] = 0.0
+    piante_measurement[pianta]['temperature'] = None
+    piante_measurement[pianta]['humidity'] = None
+    piante_measurement[pianta]['lumen'] = None
+    piante_measurement[pianta]['soil'] = None
 
 
 def request_water(pianta, soil):
