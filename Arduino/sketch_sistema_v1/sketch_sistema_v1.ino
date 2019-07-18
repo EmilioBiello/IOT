@@ -21,23 +21,16 @@ const int timer_info = 300000;
 
 // WiFi
 // Replace the next variables with your SSID/Password combination
-//const char* ssid = "OnePlusEmilio";
-//const char* password = "EmiLio..94";
-/**
-   CASA Ripetitore
-*/
-const char* ssid = "FASTWEB-B9088B";
-const char* password = "A1HM7243ZT";
+const char* ssid = "OnePlusEmilio";
+const char* password = "EmiLio..94";
 
 // MQTT
 // Make sure to update this for your own MQTT Broker!
-//const char* mqtt_server = "192.168.43.49";
-const char* mqtt_server = "192.168.1.137";
+const char* mqtt_server = "192.168.43.49";
 
 
 const char* mqtt_topic_sub = "room/pianta_1/input/#";
 const char* mqtt_topic_pub = "room/pianta_1/";
-const char* mqtt_topic_sub_elettrovalvola = "room/pianta_1/input/elettrovalvola";
 const char* mqtt_topic_sub_elettrovalvola_auto = "room/pianta_1/input/auto/elettrovalvola";
 const char* mqtt_topic_sub_elettrovalvola_manual = "room/pianta_1/input/manual/elettrovalvola";
 const char* mqtt_topic_sub_igrometro = "room/pianta_1/input/igrometro";
@@ -94,10 +87,8 @@ void callback(char* topic, byte* message, unsigned int length) {
   // If a message is received on the topic esp32/output, you check if the message is either "on" or "off".
   // Changes the output state according to the message
 
-  if (String(topic) == mqtt_topic_sub_elettrovalvola) {
+  if (String(topic) == mqtt_topic_sub_elettrovalvola_auto || String(topic) == mqtt_topic_sub_elettrovalvola_manual) {
     Serial.println("ELETTROVALVOLA");
-    use_elettrovalvola(messageTemp);
-  } else if (String(topic) == mqtt_topic_sub_elettrovalvola_auto || String(topic) == mqtt_topic_sub_elettrovalvola_manual) {
     use_elettrovalvola(messageTemp);
     if (messageTemp == "off") {
       igro_after_watering();
@@ -108,6 +99,7 @@ void callback(char* topic, byte* message, unsigned int length) {
   } else if (String(topic) == mqtt_topic_sub_info) {
     info_point();
   }
+  delay(500);
   digitalWrite(LED_VERDE_PIN, LOW);
 }
 
@@ -169,9 +161,7 @@ void loop() {
   if (now - lastMeasure > timer_info || lastMeasure == 0) {
     digitalWrite(LED_BLU_PIN, HIGH);
     lastMeasure = now;
-    use_dht();
-    use_lumen();
-    use_igrometro();
+    cycle();
     digitalWrite(LED_BLU_PIN, LOW);
     Serial.println(" --- --- --- --- --- --- ");
   }
@@ -181,6 +171,12 @@ float t = 0.0;
 float h = 0.0;
 int lumen = 0;
 int igro = 0;
+
+void cycle() {
+  use_dht();
+  use_lumen();
+  use_igrometro();
+}
 
 void use_dht() {
   t = dht.readTemperature();
@@ -285,13 +281,14 @@ void info_point() {
   digitalWrite(LED_BLU_PIN, HIGH);
   delay(100);
 
+  cycle();
+
   digitalWrite(LED_ROSSO_PIN, LOW);
   delay(100);
   digitalWrite(LED_BLU_PIN, LOW);
   delay(100);
-
-  publish_MQTT("info", "blink");
 }
+
 char* mqtt_topic = "";
 void publish_MQTT(char* mqtt_subtopic, char* value) {
 

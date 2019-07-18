@@ -1,4 +1,4 @@
-var base_url = "http://"+location.hostname;
+var base_url = "http://" + location.hostname;
 
 function start_page() {
     const hostname = location.hostname;
